@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Starter Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/starter-template.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="#">Navbar</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#">Disabled</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="https://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+      </div>
+    </nav>
+
+    <main role="main" class="container">
+
+      <div class="starter-template">
+        <h1>Table</h1>
+        <p>Watch out!</p>
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th>A</th><th>B</th><th>C</th><th>D</th>
+          </thead>
+          <tbody>
+            <tr class="tr-1">
+              <td>-1</td><td>-1</td><td>-1</td><td>-1</td>
+            </tr>
+            <tr class="tr-2">
+              <td>-1</td><td>-1</td><td>-1</td><td>-1</td>
+            </tr>
+            <tr class="tr-3">
+              <td>-1</td><td>-1</td><td>-1</td><td>-1</td>
+            </tr>
+            <tr class="tr-4">
+              <td>-1</td><td>-1</td><td>-1</td><td>-1</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="container">
+        <div id="scatter"></div>
+        <h3>Notes</h3>
+        <p class="notes"></p>
+      </div>
+
+    </main><!-- /.container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/popper.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/plotly-latest.min.js"></script>
+    <script src="js/Tone.js"></script>
+    <script>
+$(function(){
+    var count = 0;
+    var synth = new Tone.Synth().toMaster();
+
+    var NOTE = "CDEFGAB".split("");
+    var notes = "";
+
+    // plot
+    var x = [1,2,3,4,5,6,7,8];
+    var y = [0,0,0,0,0,0,0,0];
+
+    var layout = {
+        yaxis: {rangemode: 'tozero',
+                showline: true,
+                zeroline: true},
+        xaxis: {dtick: 1},
+    };
+
+    setInterval(function() {
+        update();
+    }, 1000);
+
+    function clear() {
+        for (var i=1; i<5; i++) {
+            var tds = $($("tr.tr-" + i)).find("td");
+            for (var j=0; j<tds.length; j++) {
+                $(tds[j]).html("-1");
+            }
+        }
+    }
+
+    function update() {
+        var count_surplus = count % 4;
+        var count_line = parseInt(count / 4) + 1;
+        // init
+        if (count_line > 4) {
+            count_line = 1;
+            count = 0;
+            clear();
+            notes += "<br/>";
+        }
+
+        var td = $($("tr.tr-" + count_line).find("td"))[count_surplus];
+        // 0 - 60
+        var seconds = parseInt(Math.random() * 61);
+        $(td).html(seconds);
+
+        // sound
+        var note_to_play = NOTE[seconds % 7] + "4";
+        console.log(note_to_play);
+        synth.triggerAttackRelease(note_to_play, "8n");
+        notes += note_to_play + ",";
+        $("p.notes").html(notes);
+
+        // plot
+        y.push(seconds);
+        y = y.slice(1, 8);
+        var trace = {
+            x: x,
+            y: y,
+            type: "scatter",
+        }
+        var data = [trace];
+        Plotly.newPlot("scatter", data, layout);
+
+        count = count + 1;
+    }
+})
+    </script>
+  </body>
+</html>
